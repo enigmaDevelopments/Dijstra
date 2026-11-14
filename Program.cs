@@ -29,12 +29,16 @@ while (size <= start || start < 0)
     int.TryParse(Console.ReadLine(), out start);
 #region find costs
 #region distance
-int[] costs = new int[size];
+int[] distances = new int[size];
+int[] distanceParents = new int[size];
 for (int i = 0; i < size; i++)
-    costs[i] = int.MaxValue;
+{
+    distances[i] = int.MaxValue;
+    distanceParents[i] = -1;
+}
 {
     BitArray visited = new BitArray(size);
-    costs[start] = 0;
+    distances[start] = 0;
     int current = start;
     while (current != -1)
     {
@@ -42,11 +46,17 @@ for (int i = 0; i < size; i++)
         int min = int.MaxValue;
         int minIndex = -1;
         foreach (var (v, w, _) in graph[current])
-            costs[v] = Math.Min(costs[v], costs[current] + w);
-        for (int i = 0; i < size; i++)
-            if (costs[i] < min && !visited[i])
+        {
+            if (distances[current] + w < distances[v])
             {
-                min = costs[i];
+                distances[v] = distances[current] + w;
+                distanceParents[v] = current;
+            }
+        }
+        for (int i = 0; i < size; i++)
+            if (distances[i] < min && !visited[i])
+            {
+                min = distances[i];
                 minIndex = i;
             }
         current = minIndex;
@@ -55,8 +65,12 @@ for (int i = 0; i < size; i++)
 #endregion
 #region time  
 float[] times = new float[size];
+int[] timeParents = new int[size];
 for (int i = 0; i < size; i++)
+{
     times[i] = float.PositiveInfinity;
+    timeParents[i] = -1;
+}
 {
     BitArray visited = new BitArray(size);
     times[start] = 0;
@@ -67,7 +81,11 @@ for (int i = 0; i < size; i++)
         float min = int.MaxValue;
         int minIndex = -1;
         foreach (var (v, w, s) in graph[current])
-            times[v] = Math.Min(times[v], times[current] + (float)w/s);
+            if (times[current] + (float)w / s < times[v])
+            {
+                times[v] = times[current] + (float)w / s;
+                timeParents[v] = current;
+            }
         for (int i = 0; i < size; i++)
             if (times[i] < min && !visited[i])
             {
@@ -90,18 +108,10 @@ while (true)
     List<int> pathDistacne = new List<int>();
     {
         int current = end;
-        int min = int.MaxValue;
         pathDistacne.Add(current);
         while (current != start)
         {
-            int minIndex = -1;
-            foreach (var (v, _, _) in graph[current])
-                if (costs[v] <= min)
-                {
-                    min = costs[v];
-                    minIndex = v;
-                }
-            current = minIndex;
+            current = distanceParents[current];
             pathDistacne.Add(current);
         }
     }
@@ -110,26 +120,16 @@ while (true)
     List<int> pathTime = new List<int>();
     {
         int current = end;
-        float min = float.PositiveInfinity;
         pathTime.Add(current);
         while (current != start)
         {
-            int minIndex = -1;
-            foreach (var (v, _, _) in graph[current])
-                if (times[v] <= min)
-                {
-                    min = times[v];
-                    minIndex = v;
-                }
-            current = minIndex;
+            current = timeParents[current];
             pathTime.Add(current);
         }
     }
     #endregion
     pathDistacne.Reverse();
     pathTime.Reverse();
-    Console.WriteLine(String.Join(",", costs));
-    Console.WriteLine(String.Join(",", times));
-    Console.WriteLine($"Shortest Path: {String.Join(",", pathDistacne)} distance: {costs[end]}\nQuickest path: {String.Join(",", pathTime)} time :{times[end]}");
+    Console.WriteLine($"Shortest Path: {String.Join(",", pathDistacne)} distance: {distances[end]}\nQuickest path: {String.Join(",", pathTime)} time :{times[end]}");
     #endregion
 }
