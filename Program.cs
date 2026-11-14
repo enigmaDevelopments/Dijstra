@@ -7,9 +7,9 @@ string filePath = "./input.txt";
 string content = File.ReadAllText(filePath);
 string[] lines = content.Split('\n');
 int size = int.Parse(lines[0]);
-List<List<(int, int, int)>> graph = new List<List<(int, int, int)>>(size);
+List<(int, int, int)>[] graph = new List<(int, int, int)>[size];
 for (int i = 0; i < size; i++)
-    graph.Add(new List<(int, int, int)>(size));
+    graph[i] = new List<(int, int, int)>(size);
 foreach (var line in lines.Skip(1))
 {
     var parts = line.Split(' ');

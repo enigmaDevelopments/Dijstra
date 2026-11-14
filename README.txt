@@ -1,0 +1,1 @@
+In the input file there should be the number of nodes up top, followed a list of edges in oreder, node a, node b, distance, speed
