@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 
 #region get input
@@ -9,7 +10,7 @@ string[] lines = content.Split('\n');
 int size = int.Parse(lines[0]);
 List<List<(int, int)>> graph = new List<List<(int, int)>>(size);
 for (int i = 0; i < size; i++)
-    graph[i] = new List<(int, int)>(size);
+    graph.Add(new List<(int, int)>(size));
 foreach (var line in lines.Skip(1))
 {
     var parts = line.Split(' ');
@@ -21,4 +22,27 @@ foreach (var line in lines.Skip(1))
 }
 for (int i = 0; i < size; i++)
     graph[i].TrimExcess();
+#endregion
+#region find costs
+int[] costs = new int[size];
+for (int i = 1; i < size; i++)
+    costs[i] = int.MaxValue;
+BitArray visited = new BitArray(size);
+int current = 0;
+while (current != -1)
+{
+    visited[current] = true;
+    int min = int.MaxValue;
+    int minIndex = -1;
+    foreach (var (v, w) in graph[current])
+        costs[v] = Math.Min(costs[v], costs[current] + w);
+    for (int i = 0; i < size; i++)
+        if (!visited[i] && costs[i] < min)
+        {
+            min = costs[i];
+            minIndex = i;
+        }
+    current = minIndex;
+}
+Console.WriteLine(string.Join(" ", costs));
 #endregion
